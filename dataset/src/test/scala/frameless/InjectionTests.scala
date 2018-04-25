@@ -4,6 +4,7 @@ import frameless.CollectTests.prop
 import org.scalacheck._
 import org.scalacheck.Prop._
 import shapeless.test.illTyped
+import scala.math.Ordering
 
 sealed trait Country
 case object France extends Country
@@ -81,18 +82,43 @@ object I {
   implicit def arbitrary[A: Arbitrary]: Arbitrary[I[A]] = Arbitrary(Arbitrary.arbitrary[A].map(I(_)))
 }
 
+sealed abstract class Stringy(val name: String)
+case object StringBean extends Stringy("bean")
+case object Celery extends Stringy("celery")
+
+object Stringy {
+  implicit val arbitrary: Arbitrary[Stringy] =
+    Arbitrary(Gen.oneOf(StringBean, Celery))
+
+  implicit val injection: Injection[Stringy, String] =
+    Injection(
+      _.name,
+      {
+        case "bean" => StringBean
+        case "celery" => Celery
+      }
+    )
+
+  implicit val ordering: Ordering[Stringy] =
+    Ordering.by(_.name)
+}
+
 class InjectionTests extends TypedDatasetSuite {
   test("Injection based encoders") {
     check(forAll(prop[Country] _))
     check(forAll(prop[LocalDateTime] _))
     check(forAll(prop[Food] _))
+    check(forAll(prop[Stringy] _))
     check(forAll(prop[X1[Country]] _))
     check(forAll(prop[X1[LocalDateTime]] _))
     check(forAll(prop[X1[Food]] _))
+    check(forAll(prop[X1[Stringy]] _))
     check(forAll(prop[X1[X1[Country]]] _))
     check(forAll(prop[X1[X1[LocalDateTime]]] _))
     check(forAll(prop[X1[X1[Food]]] _))
+    check(forAll(prop[X1[X1[Stringy]]] _))
     check(forAll(prop[X2[Country, X2[LocalDateTime, Food]]] _))
+    check(forAll(prop[X2[Country, X2[LocalDateTime, Stringy]]] _))
     check(forAll(prop[X3[Country, LocalDateTime, Food]] _))
     check(forAll(prop[X3U[Country, LocalDateTime, Food]] _))
 

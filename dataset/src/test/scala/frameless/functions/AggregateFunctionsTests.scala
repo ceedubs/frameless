@@ -327,15 +327,19 @@ class AggregateFunctionsTests extends TypedDatasetSuite {
   test("collectList") {
     def prop[A: TypedEncoder : Ordering](xs: List[X2[A, A]]): Prop = {
       val tds = TypedDataset.create(xs)
-      val tdsRes: Seq[(A, Vector[A])] = tds.groupBy(tds('a)).agg(collectList(tds('b))).collect().run()
+      val aggregated: TypedDataset[(A, Vector[A])] = tds.groupBy(tds('a)).agg(collectList(tds('b)))
+      val tdsRes: Seq[(A, Vector[A])] = aggregated.collect().run()
+      val flatMapped: Seq[Vector[A]] =  aggregated.deserialized.flatMap{ case (_, as) => Option(as) }.collect().run()
 
-      tdsRes.toMap.mapValues(_.sorted) ?= xs.groupBy(_.a).mapValues(_.map(_.b).toVector.sorted)
+      (tdsRes.toMap.mapValues(_.sorted) ?= xs.groupBy(_.a).mapValues(_.map(_.b).toVector.sorted)) &&
+      (xs.isEmpty || !flatMapped.isEmpty)
     }
 
     check(forAll(prop[Long] _))
     check(forAll(prop[Int] _))
     check(forAll(prop[Byte] _))
     check(forAll(prop[String] _))
+    check(forAll(prop[Stringy] _))
   }
 
   test("collectSet") {

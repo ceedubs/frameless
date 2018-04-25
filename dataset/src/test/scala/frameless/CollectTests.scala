@@ -85,7 +85,8 @@ object CollectTests {
   import frameless.syntax._
 
   def prop[A: TypedEncoder : ClassTag](data: Vector[A])(implicit c: SparkSession): Prop =
-    TypedDataset.create(data).collect().run().toVector ?= data
+    //TypedDataset.create(data).collect().run().toVector ?= data
+    TypedDataset.create(data).deserialized.map(identity).collect().run().toVector ?= data
 
   def propArray[A: TypedEncoder : ClassTag](data: Vector[X1[Array[A]]])(implicit c: SparkSession): Prop =
     Prop(TypedDataset.create(data).collect().run().toVector.zip(data).forall {
