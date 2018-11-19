@@ -4,7 +4,7 @@ val catsEffectVersion = "1.0.0"
 val catsMtlVersion = "0.3.0"
 val scalatest = "3.0.3"
 val shapeless = "2.3.2"
-val scalacheck = "1.13.5"
+val scalacheck = "1.14.0"
 
 lazy val root = Project("frameless", file("." + "frameless")).in(file("."))
   .aggregate(core, cats, dataset, ml, docs)
@@ -82,7 +82,7 @@ lazy val docs = project
 
 lazy val framelessSettings = Seq(
   organization := "org.typelevel",
-  scalaVersion := "2.11.12",
+  scalaVersion := "2.12.7",
   scalacOptions ++= commonScalacOptions,
   licenses += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
   testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDF"),
@@ -102,8 +102,7 @@ lazy val commonScalacOptions = Seq(
   "-feature",
   "-unchecked",
   "-Xfatal-warnings",
-  "-Xlint:-missing-interpolator,_",
-  "-Yinline-warnings",
+  "-Xlint:-missing-interpolator,-unused,_",
   "-Yno-adapted-args",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
