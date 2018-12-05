@@ -76,7 +76,10 @@ lazy val docs = project
   ))
   .settings(
     addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.4"),
-    scalacOptions += "-Ypartial-unification"
+    scalacOptions ++= Seq(
+      "-Ypartial-unification",
+      "-Ydelambdafy:inline"
+    )
   )
   .dependsOn(dataset, cats, ml)
 
